@@ -55,7 +55,7 @@
     <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-[90%] md:w-[60%]">
       <input type="text" id="input" placeholder="Enter text here"
         class="flex-grow outline-none shadow-sm shadow-gray-500 rounded-2xl p-3 focus:ring focus:ring-blue-500 transition-all duration-300" />
-      <button onclick="play()"
+      <button onclick="addTask()"
         class="bg-blue-600 text-white px-6 py-3 rounded-2xl shadow-sm shadow-blue-500 hover:bg-blue-700 transition-all duration-300">
         Add
       </button>
@@ -65,26 +65,38 @@
   </div>
 
   <script>
-    function play() {
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function addTask() {
       const input = document.getElementById('input');
       const value = input.value.trim();
       if (!value) return;
 
+      const taskObj = { text: value };
+      tasks.push(taskObj);
+      saveTasks();
+
+      renderTask(taskObj);
+      input.value = '';
+    }
+
+    function renderTask(taskObj, index = tasks.length - 1) {
       const container = document.getElementById('container');
 
-      // Task block
       const taskDiv = document.createElement('div');
       taskDiv.className = 'flex justify-between items-center p-4 bg-white rounded-lg shadow-md fade-in';
 
       const textDiv = document.createElement('div');
-      textDiv.innerText = value;
+      textDiv.innerText = taskObj.text;
       textDiv.className = 'text-gray-800 break-words w-[70%]';
 
-      // Button group
       const btnGroup = document.createElement('div');
       btnGroup.className = 'flex gap-2';
 
-      // Edit Button
       const editBtn = document.createElement('button');
       editBtn.innerText = 'Edit';
       editBtn.className = 'bg-yellow-400 text-white px-4 py-1 rounded hover:bg-yellow-500 text-sm';
@@ -105,6 +117,8 @@
           const newValue = inputEdit.value.trim();
           if (newValue) {
             textDiv.innerText = newValue;
+            tasks[index].text = newValue;
+            saveTasks();
           }
           textDiv.style.display = "";
           inputEdit.remove();
@@ -117,24 +131,33 @@
         inputEdit.focus();
       };
 
-      // Delete Button
       const deleteBtn = document.createElement('button');
       deleteBtn.innerText = 'Delete';
       deleteBtn.className = 'bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 text-sm';
       deleteBtn.onclick = function () {
         taskDiv.classList.add("fade-out");
-        setTimeout(() => taskDiv.remove(), 200);
+        setTimeout(() => {
+          taskDiv.remove();
+          tasks.splice(index, 1);
+          saveTasks();
+          renderAll(); // re-render to fix index mismatch
+        }, 200);
       };
 
-      // Append
       btnGroup.appendChild(editBtn);
       btnGroup.appendChild(deleteBtn);
       taskDiv.appendChild(textDiv);
       taskDiv.appendChild(btnGroup);
       container.appendChild(taskDiv);
-
-      input.value = '';
     }
+
+    function renderAll() {
+      document.getElementById("container").innerHTML = "";
+      tasks.forEach((task, i) => renderTask(task, i));
+    }
+
+    // Initial render
+    renderAll();
   </script>
 </body>
 
