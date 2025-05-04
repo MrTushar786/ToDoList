@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To Do List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .fade-out {
+      animation: fadeOut 0.2s ease-out;
+    }
+
+    .img {
+      min-width: 100%;
+      min-height: 100vh;
+      background: url("bg.jpg");
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+</head>
+
+<body class="flex justify-center items-center">
+  <div class="img flex flex-col items-center w-full px-4 pb-10">
+    <h1 class="font-serif font-medium mt-10 mb-6 text-4xl text-center">To Do List</h1>
+
+    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-[90%] md:w-[60%]">
+      <input type="text" id="input" placeholder="Enter text here"
+        class="flex-grow outline-none shadow-sm shadow-gray-500 rounded-2xl p-3 focus:ring focus:ring-blue-500 transition-all duration-300" />
+      <button onclick="play()"
+        class="bg-blue-600 text-white px-6 py-3 rounded-2xl shadow-sm shadow-blue-500 hover:bg-blue-700 transition-all duration-300">
+        Add
+      </button>
+    </div>
+
+    <div id="container" class="mt-6 w-full sm:w-[90%] md:w-[60%] space-y-4"></div>
+  </div>
+
+  <script>
+    function play() {
+      const input = document.getElementById('input');
+      const value = input.value.trim();
+      if (!value) return;
+
+      const container = document.getElementById('container');
+
+      // Task block
+      const taskDiv = document.createElement('div');
+      taskDiv.className = 'flex justify-between items-center p-4 bg-white rounded-lg shadow-md fade-in';
+
+      const textDiv = document.createElement('div');
+      textDiv.innerText = value;
+      textDiv.className = 'text-gray-800 break-words w-[70%]';
+
+      // Button group
+      const btnGroup = document.createElement('div');
+      btnGroup.className = 'flex gap-2';
+
+      // Edit Button
+      const editBtn = document.createElement('button');
+      editBtn.innerText = 'Edit';
+      editBtn.className = 'bg-yellow-400 text-white px-4 py-1 rounded hover:bg-yellow-500 text-sm';
+
+      editBtn.onclick = function () {
+        if (taskDiv.querySelector("input")) return;
+
+        const currentText = textDiv.innerText;
+        const inputEdit = document.createElement("input");
+        inputEdit.type = "text";
+        inputEdit.value = currentText;
+        inputEdit.className = "border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring focus:ring-blue-400 w-[70%]";
+
+        const saveBtn = document.createElement("button");
+        saveBtn.innerText = "Save";
+        saveBtn.className = "bg-green-500 text-white px-3 py-1 ml-2 rounded hover:bg-green-600 text-sm";
+        saveBtn.onclick = function () {
+          const newValue = inputEdit.value.trim();
+          if (newValue) {
+            textDiv.innerText = newValue;
+          }
+          textDiv.style.display = "";
+          inputEdit.remove();
+          saveBtn.remove();
+        };
+
+        textDiv.style.display = "none";
+        textDiv.parentNode.insertBefore(inputEdit, textDiv);
+        textDiv.parentNode.insertBefore(saveBtn, textDiv.nextSibling);
+        inputEdit.focus();
+      };
+
+      // Delete Button
+      const deleteBtn = document.createElement('button');
+      deleteBtn.innerText = 'Delete';
+      deleteBtn.className = 'bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 text-sm';
+      deleteBtn.onclick = function () {
+        taskDiv.classList.add("fade-out");
+        setTimeout(() => taskDiv.remove(), 200);
+      };
+
+      // Append
+      btnGroup.appendChild(editBtn);
+      btnGroup.appendChild(deleteBtn);
+      taskDiv.appendChild(textDiv);
+      taskDiv.appendChild(btnGroup);
+      container.appendChild(taskDiv);
+
+      input.value = '';
+    }
+  </script>
+</body>
+
+</html>
